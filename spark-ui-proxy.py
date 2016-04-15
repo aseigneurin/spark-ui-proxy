@@ -1,8 +1,10 @@
+import sys
 import BaseHTTPServer
 import urllib2
 
 HOST_NAME = 'localhost'
-PORT_NUMBER = 8888
+PORT_NUMBER = 0
+ROOT = ""
 
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -18,7 +20,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             path = "" if idx == -1 else s.path[idx:]
             targetHost = s.path[7:] if idx == -1 else s.path[7:idx]
         else:
-            targetHost = "localhost:8080"
+            targetHost = ROOT
             path = s.path
 
         targetUrl = "http://" + targetHost + path
@@ -40,6 +42,13 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print "Usage: <proxied host:port> <proxy port>"
+        sys.exit(1)
+
+    ROOT = sys.argv[1]
+    PORT_NUMBER = int(sys.argv[2])
+
     print "Starting server on http://{0}:{1}".format(HOST_NAME, PORT_NUMBER)
 
     server_class = BaseHTTPServer.HTTPServer
