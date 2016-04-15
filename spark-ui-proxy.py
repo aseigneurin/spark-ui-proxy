@@ -11,7 +11,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(s):
         if s.path == "" or s.path == "/":
             s.send_response(302)
-            s.send_header("Location", "/proxy:localhost:8080")
+            s.send_header("Location", "/proxy:" + ROOT)
             s.end_headers()
             return
 
