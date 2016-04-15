@@ -60,12 +60,12 @@ On this node, run the Python proxy:
 $ python spark-ui-proxy.py localhost:8080 9999
 ```
 
-You can stop the proxy at any time by hitting Ctrl+C.
+You can stop the proxy at any time by hitting *Ctrl+C*.
 
 Alternatively, you may run the proxy in background:
 
 ```
-nohup python spark-ui-proxy.py localhost:8080 9999 &
+$ nohup python spark-ui-proxy.py localhost:8080 9999 &
 ```
 
 Now, on your computer, open http://localhost:9999 and you should see the UI of your Spark cluster!
