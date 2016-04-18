@@ -9,6 +9,14 @@ ROOT = ""
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
+        self.proxyRequest(None)
+
+    def do_POST(self):
+        length = int(self.headers.getheader('content-length'))
+        postData = self.rfile.read(length)
+        self.proxyRequest(postData)
+
+    def proxyRequest(self, data):
         if self.path == "" or self.path == "/":
             self.send_response(302)
             self.send_header("Location", "/proxy:" + ROOT)
@@ -30,7 +38,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         print "host: " + targetHost
         print "target: " + targetUrl
 
-        page = urllib2.urlopen(targetUrl).read()
+        page = urllib2.urlopen(targetUrl, data).read()
         page = page.replace("href=\"/", "href=\"/proxy:{0}/".format(targetHost))
         page = page.replace("href=\"log", "href=\"/proxy:{0}/log".format(targetHost))
         page = page.replace("href=\"http://", "href=\"/proxy:")
