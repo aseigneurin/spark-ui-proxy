@@ -8,24 +8,24 @@ ROOT = ""
 
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_GET(s):
-        if s.path == "" or s.path == "/":
-            s.send_response(302)
-            s.send_header("Location", "/proxy:" + ROOT)
-            s.end_headers()
+    def do_GET(self):
+        if self.path == "" or self.path == "/":
+            self.send_response(302)
+            self.send_header("Location", "/proxy:" + ROOT)
+            self.end_headers()
             return
 
-        if s.path.startswith("/proxy:"):
-            idx = s.path.find("/", 7)
-            path = "" if idx == -1 else s.path[idx:]
-            targetHost = s.path[7:] if idx == -1 else s.path[7:idx]
+        if self.path.startswith("/proxy:"):
+            idx = self.path.find("/", 7)
+            path = "" if idx == -1 else self.path[idx:]
+            targetHost = self.path[7:] if idx == -1 else self.path[7:idx]
         else:
             targetHost = ROOT
-            path = s.path
+            path = self.path
 
         targetUrl = "http://" + targetHost + path
 
-        print "get: " + s.path
+        print "get: " + self.path
         print "path: " + path
         print "host: " + targetHost
         print "target: " + targetUrl
@@ -36,9 +36,9 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         page = page.replace("href=\"http://", "href=\"/proxy:")
         page = page.replace("src=\"/", "src=\"/proxy:{0}/".format(targetHost))
 
-        s.send_response(200)
-        s.end_headers()
-        s.wfile.write(page)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(page)
 
 
 if __name__ == '__main__':
