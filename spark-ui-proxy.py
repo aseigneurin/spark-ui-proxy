@@ -1,5 +1,5 @@
-import sys
 import BaseHTTPServer
+import sys
 import urllib2
 
 HOST_NAME = 'localhost'
