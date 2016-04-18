@@ -9,6 +9,13 @@ ROOT = ""
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
+        # redirect if we are hitting the home page
+        if self.path == "" or self.path == "/":
+            self.send_response(302)
+            self.send_header("Location", "/proxy:" + ROOT)
+            self.end_headers()
+            return
+
         self.proxyRequest(None)
 
     def do_POST(self):
@@ -17,36 +24,47 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.proxyRequest(postData)
 
     def proxyRequest(self, data):
-        if self.path == "" or self.path == "/":
-            self.send_response(302)
-            self.send_header("Location", "/proxy:" + ROOT)
-            self.end_headers()
-            return
-
-        if self.path.startswith("/proxy:"):
-            idx = self.path.find("/", 7)
-            path = "" if idx == -1 else self.path[idx:]
-            targetHost = self.path[7:] if idx == -1 else self.path[7:idx]
-        else:
-            targetHost = ROOT
-            path = self.path
-
+        targetHost, path = self.extractUrlDetails(self.path)
         targetUrl = "http://" + targetHost + path
 
         print "get: " + self.path
-        print "path: " + path
         print "host: " + targetHost
+        print "path: " + path
         print "target: " + targetUrl
 
-        page = urllib2.urlopen(targetUrl, data).read()
+        proxiedRequest = urllib2.urlopen(targetUrl, data)
+        resCode = proxiedRequest.getcode()
+
+        if resCode == 200:
+            page = proxiedRequest.read()
+            page = self.rewriteLinks(page, targetHost)
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(page)
+        elif resCode == 302:
+            self.send_response(302)
+            self.send_header("Location", "/proxy:" + ROOT)
+            self.end_headers()
+        else:
+            raise Exception("Unsupported response: " + resCode)
+
+    def extractUrlDetails(self, path):
+        if path.startswith("/proxy:"):
+            idx = path.find("/", 7)
+            targetHost = path[7:] if idx == -1 else path[7:idx]
+            path = "" if idx == -1 else path[idx:]
+        else:
+            targetHost = ROOT
+            path = path
+        return (targetHost, path)
+
+    def rewriteLinks(self, page, targetHost):
         page = page.replace("href=\"/", "href=\"/proxy:{0}/".format(targetHost))
         page = page.replace("href=\"log", "href=\"/proxy:{0}/log".format(targetHost))
         page = page.replace("href=\"http://", "href=\"/proxy:")
         page = page.replace("src=\"/", "src=\"/proxy:{0}/".format(targetHost))
-
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(page)
+        page = page.replace("action=\"", "action=\"/proxy:{0}/".format(targetHost))
+        return page
 
 
 if __name__ == '__main__':
