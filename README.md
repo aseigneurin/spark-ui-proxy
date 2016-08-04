@@ -68,4 +68,10 @@ Alternatively, you may run the proxy in background:
 $ nohup python spark-ui-proxy.py localhost:8080 9999 &
 ```
 
+You can also run it with docker:
+```
+$ docker build -t spark-ui-proxy .
+$ docker run -d --net host spark-ui-proxy localhost:8080 9999 
+```
+
 Now, on your computer, open http://localhost:9999 and you should see the UI of your Spark cluster!

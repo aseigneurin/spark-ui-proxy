@@ -4,15 +4,14 @@ import urllib2
 
 HOST_NAME = 'localhost'
 PORT_NUMBER = 0
-ROOT = ""
-
+SPARK_MASTER_HOST = ""
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         # redirect if we are hitting the home page
         if self.path == "" or self.path == "/":
             self.send_response(302)
-            self.send_header("Location", "/proxy:" + ROOT)
+            self.send_header("Location", "/proxy:" + SPARK_MASTER_HOST)
             self.end_headers()
             return
 
@@ -43,7 +42,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write(page)
         elif resCode == 302:
             self.send_response(302)
-            self.send_header("Location", "/proxy:" + ROOT)
+            self.send_header("Location", "/proxy:" + SPARK_MASTER_HOST)
             self.end_headers()
         else:
             raise Exception("Unsupported response: " + resCode)
@@ -54,7 +53,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             targetHost = path[7:] if idx == -1 else path[7:idx]
             path = "" if idx == -1 else path[idx:]
         else:
-            targetHost = ROOT
+            targetHost = SPARK_MASTER_HOST
             path = path
         return (targetHost, path)
 
@@ -68,12 +67,12 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print "Usage: <proxied host:port> <proxy port>"
+    if len(sys.argv) < 2:
+        print "Usage: <proxied host:port> [<proxy port>]"
         sys.exit(1)
 
-    ROOT = sys.argv[1]
-    PORT_NUMBER = int(sys.argv[2])
+    SPARK_MASTER_HOST = sys.argv[1]
+    PORT_NUMBER = int(sys.argv[2]) if len(sys.argv) >= 3 else 80
 
     print "Starting server on http://{0}:{1}".format(HOST_NAME, PORT_NUMBER)
 
