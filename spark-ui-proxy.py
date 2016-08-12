@@ -1,9 +1,10 @@
 import BaseHTTPServer
+import os
 import sys
 import urllib2
 
-HOST_NAME = 'localhost'
-PORT_NUMBER = 0
+BIND_ADDR = os.environ['BIND_ADDR'] if os.environ['BIND_ADDR'] else '0.0.0.0'
+SERVER_PORT = int(os.environ['SERVER_PORT']) if os.environ['SERVER_PORT'] else 80
 SPARK_MASTER_HOST = ""
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -72,11 +73,13 @@ if __name__ == '__main__':
         sys.exit(1)
 
     SPARK_MASTER_HOST = sys.argv[1]
-    PORT_NUMBER = int(sys.argv[2]) if len(sys.argv) >= 3 else 80
 
-    print "Starting server on http://{0}:{1}".format(HOST_NAME, PORT_NUMBER)
+    if len(sys.argv) >= 3:
+        SERVER_PORT = int(sys.argv[2])
+
+    print "Starting server on http://{0}:{1}".format(BIND_ADDR, SERVER_PORT)
 
     server_class = BaseHTTPServer.HTTPServer
-    server_address = (HOST_NAME, PORT_NUMBER)
+    server_address = (BIND_ADDR, SERVER_PORT)
     httpd = server_class(server_address, ProxyHandler)
     httpd.serve_forever()
