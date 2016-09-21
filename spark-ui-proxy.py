@@ -3,8 +3,8 @@ import os
 import sys
 import urllib2
 
-BIND_ADDR = os.environ['BIND_ADDR'] if os.environ['BIND_ADDR'] else '0.0.0.0'
-SERVER_PORT = int(os.environ['SERVER_PORT']) if os.environ['SERVER_PORT'] else 80
+BIND_ADDR = os.environ.get("BIND_ADDR", "0.0.0.0")
+SERVER_PORT = int(os.environ.get("SERVER_PORT", "80"))
 SPARK_MASTER_HOST = ""
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
