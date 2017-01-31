@@ -89,6 +89,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         page = page.replace('href="http://', 'href="' + URL_PREFIX + 'proxy:')
         page = page.replace('src="/', 'src="' + target)
         page = page.replace('action="', 'action="' + target)
+        page = page.replace('"/api/v1/', '"' + target + 'api/v1/')
         return page
 
 
