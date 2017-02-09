@@ -23,6 +23,7 @@
 import os
 import sys
 import urllib2
+import SocketServer
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 BIND_ADDR = os.environ.get("BIND_ADDR", "0.0.0.0")
@@ -105,7 +106,11 @@ if __name__ == '__main__':
 
     print("Starting server on http://{0}:{1}".format(BIND_ADDR, SERVER_PORT))
 
-    server_class = HTTPServer
+    class ForkingHTTPServer(SocketServer.ForkingMixIn, HTTPServer):
+        def finish_request(self, request, client_address):
+            request.settimeout(30)
+            HTTPServer.finish_request(self, request, client_address)
+
     server_address = (BIND_ADDR, SERVER_PORT)
-    httpd = server_class(server_address, ProxyHandler)
+    httpd = ForkingHTTPServer(server_address, ProxyHandler)
     httpd.serve_forever()
