@@ -86,6 +86,8 @@ class ProxyHandler(BaseHTTPRequestHandler):
     def rewriteLinks(self, page, targetHost):
         target = "{0}proxy:{1}/".format(URL_PREFIX, targetHost)
         page = page.replace('href="/', 'href="' + target)
+        page = page.replace("'<div><a href=' + logUrl + '>'",
+                            "'<div><a href=' + location.origin + logUrl.replace('http://', '/proxy:') + '>'")
         page = page.replace('href="log', 'href="' + target + 'log')
         page = page.replace('href="http://', 'href="' + URL_PREFIX + 'proxy:')
         page = page.replace('src="/', 'src="' + target)
