@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # MIT License
 # 
 # Copyright (c) 2016 Alexis Seigneurin
