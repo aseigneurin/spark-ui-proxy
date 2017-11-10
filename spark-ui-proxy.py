@@ -52,10 +52,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         targetHost, path = self.extractUrlDetails(self.path)
         targetUrl = "http://" + targetHost + path
 
-        print("get: " + self.path)
-        print("host: " + targetHost)
-        print("path: " + path)
-        print("target: " + targetUrl)
+        print("get: %s  host: %s  path: %s  target: %s" % (self.path, targetHost, path, targetUrl))
 
         proxiedRequest = urllib2.urlopen(targetUrl, data)
         resCode = proxiedRequest.getcode()
