@@ -21,10 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import SocketServer
+import logging
 import os
 import sys
 import urllib2
-import SocketServer
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 BIND_ADDR = os.environ.get("BIND_ADDR", "0.0.0.0")
@@ -35,6 +36,14 @@ SPARK_MASTER_HOST = ""
 
 class ProxyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # Add an health checking endpoint.
+        if self.path in ("/healthz"):
+            self.send_response(code=200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write("OK")
+            return
+
         # redirect if we are hitting the home page
         if self.path in ("", URL_PREFIX):
             self.send_response(302)
@@ -54,7 +63,12 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
         print("get: %s  host: %s  path: %s  target: %s" % (self.path, targetHost, path, targetUrl))
 
-        proxiedRequest = urllib2.urlopen(targetUrl, data)
+        try:
+            proxiedRequest = urllib2.urlopen(targetUrl, data)
+        except Exception as ue:
+            logging.error("Caught an exception trying to reach [ {0} ]".format(targetUrl))
+            raise ue
+
         resCode = proxiedRequest.getcode()
 
         if resCode == 200:
