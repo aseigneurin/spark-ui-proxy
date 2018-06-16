@@ -74,7 +74,9 @@ class ProxyHandler(BaseHTTPRequestHandler):
         if resCode == 200:
             page = proxiedRequest.read()
             page = self.rewriteLinks(page, targetHost)
+            resContentType = proxiedRequest.info()["Content-Type"]
             self.send_response(200)
+            self.send_header("Content-Type", resContentType)
             self.end_headers()
             self.wfile.write(page)
         elif resCode == 302:
