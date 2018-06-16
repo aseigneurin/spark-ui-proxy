@@ -37,7 +37,7 @@ SPARK_MASTER_HOST = ""
 class ProxyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         # Add an health checking endpoint.
-        if self.path in ("/healthz"):
+        if self.path in ["/healthz"]:
             self.send_response(code=200)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
@@ -45,7 +45,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
             return
 
         # redirect if we are hitting the home page
-        if self.path in ("", URL_PREFIX):
+        if self.path in ["", URL_PREFIX]:
             self.send_response(302)
             self.send_header("Location", URL_PREFIX + "proxy:" + SPARK_MASTER_HOST)
             self.end_headers()
